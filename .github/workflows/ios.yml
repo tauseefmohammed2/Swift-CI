@@ -1,0 +1,20 @@
+name: iOS CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1.2.1
+      with:
+        xcode-version: 'latest'
+    - name: Install Dependencies
+      run: |
+        gem install bundler
+        bundle install
+        bundle exec pod install --repo-update
+    - name: Build iOS Project
+      run: xcodebuild build -workspace SE491GroupProject.xcworkspace -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug
