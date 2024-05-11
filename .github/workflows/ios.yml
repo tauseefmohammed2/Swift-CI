@@ -27,7 +27,7 @@ jobs:
       run: xcodebuild build -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug
     - name: Run Unit Tests
       run: |
-        xcrun simctl boot "iPhone 13" || true # Boot simulator
+        xcrun simctl boot "iPhone 15 Pro" || true # Boot simulator
         sleep 30 # Wait for simulator to be ready
         xcodebuild test -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' -resultBundlePath TestResults
     
