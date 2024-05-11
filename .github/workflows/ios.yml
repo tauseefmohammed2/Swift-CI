@@ -6,28 +6,47 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Xcode
       uses: maxim-lobanov/setup-xcode@v1.6.0
       with:
         xcode-version: 'latest'
-    - name: Build iOS Project
-      run: xcodebuild build -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug  
-  Test:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1.6.0
+    - name: Cache Pods
+      uses: actions/cache@v3
       with:
-        xcode-version: 'latest'
-    - name: List available simulators
-      run: xcrun simctl list devicetypes runtimes          
+        path: ~/Library/Caches/CocoaPods
+        key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
     - name: Build iOS Project
       run: xcodebuild build -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug
+
+  unit-tests:
+    needs: build
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1.6.0
+      with:
+        xcode-version: 'latest'
     - name: Run Unit Tests
       run: |
         xcrun simctl boot "iPhone 15 Pro" || true # Boot simulator
-        sleep 30 # Wait for simulator to be ready
-        xcodebuild test -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' -resultBundlePath TestResults
-    
+        sleep 30 # Optional: Wait a bit to ensure the simulator is ready
+        xcodebuild test -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' -only-testing:SE491GroupProjectTests
+
+  ui-tests:
+    needs: build
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1.6.0
+      with:
+        xcode-version: 'latest'
+    - name: Run UI Tests
+      run: |
+        xcrun simctl boot "iPhone 15 Pro" || true # Boot simulator
+        sleep 30 # Optional: Wait a bit to ensure the simulator is ready
+        xcodebuild test -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' -only-testing:SE491GroupProjectUITests
