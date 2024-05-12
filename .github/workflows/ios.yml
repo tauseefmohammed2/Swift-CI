@@ -12,7 +12,14 @@ jobs:
       with:
         xcode-version: 'latest'
     - name: Static Code Analysis
-      run: xcodebuild analyze -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug
+      run: |
+        mkdir AnalysisResults
+        xcodebuild analyze -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=AnalysisResults/
+    - name: Upload Analysis Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: analysis-results
+        path: AnalysisResults/    
 
   build:
     needs: code-analysis
@@ -48,4 +55,12 @@ jobs:
       run: |
         xcrun simctl boot "iPhone 15 Pro" || true # Boot simulator
         sleep 30 # Wait for simulator to be ready
-        xcodebuild test -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' -resultBundlePath TestResults   
+        xcodebuild test -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' -enableCodeCoverage YES -resultBundlePath TestResults
+    - name: Install Codecov uploader
+      run: |
+        curl -Os https://uploader.codecov.io/latest/macos/codecov
+        chmod +x codecov
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
