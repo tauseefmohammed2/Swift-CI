@@ -1,28 +1,27 @@
 name: iOS CI
 
-on: [push, pull_request]
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+      types: [opened, synchronize, reopened]
 
 jobs:
-  code-analysis:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Xcode
-      uses: maxim-lobanov/setup-xcode@v1.6.0
-      with:
-        xcode-version: 'latest'
-    - name: Static Code Analysis
-      run: |
-        mkdir AnalysisResults
-        xcodebuild analyze -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug CLANG_ANALYZER_OUTPUT=html CLANG_ANALYZER_OUTPUT_DIR=AnalysisResults/
-    - name: Upload Analysis Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: analysis-results
-        path: AnalysisResults/    
-
+  sonarcloud:
+      name: SonarCloud
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        - name: SonarCloud Scan
+          uses: SonarSource/sonarcloud-github-action@master
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   build:
-    needs: code-analysis
+    needs: sonarcloud
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
