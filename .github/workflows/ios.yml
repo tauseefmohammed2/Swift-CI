@@ -13,8 +13,8 @@ jobs:
       run: swiftlint
     
   code-analysis:
-    runs-on: macos-latest
     needs: lint
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
     - name: Set up Xcode
@@ -25,6 +25,7 @@ jobs:
       run: xcodebuild analyze -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug
 
   build:
+    needs: code-analysis
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
