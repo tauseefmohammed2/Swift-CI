@@ -3,6 +3,27 @@ name: iOS CI
 on: [push, pull_request]
 
 jobs:
+  lint:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install SwiftLint
+      run: brew install swiftlint
+    - name: Linting with SwiftLint
+      run: swiftlint
+    
+  code-analysis:
+    runs-on: macos-latest
+    needs: lint
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1.6.0
+      with:
+        xcode-version: 'latest'
+    - name: Static Code Analysis
+      run: xcodebuild analyze -project SE491GroupProject.xcodeproj -scheme SE491GroupProject -sdk iphonesimulator -configuration Debug
+
   build:
     runs-on: macos-latest
     steps:
