@@ -8,5 +8,4 @@ device "iPhone 15 Pro"
 code_coverage true
 xcargs '-parallelizeTargets'
 prelaunch_simulator true
-simulator_startup_timeout 120
 derived_data_path "Build/"
