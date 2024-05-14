@@ -24,7 +24,7 @@ jobs:
   build:
     name: Build
     needs: sonarcloud
-    runs-on: macos-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
     - name: Set up Xcode
@@ -43,7 +43,7 @@ jobs:
   
   xcode-tests:
     needs: build
-    runs-on: macos-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
     - name: Set up Xcode
