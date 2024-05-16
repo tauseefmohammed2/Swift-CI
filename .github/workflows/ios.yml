@@ -24,7 +24,7 @@ jobs:
   xcode-tests:
     name: Build and Tests
     needs: sonarcloud
-    runs-on: self-hosted
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
     - name: Set up Xcode
